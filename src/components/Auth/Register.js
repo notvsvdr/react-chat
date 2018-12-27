@@ -1,5 +1,14 @@
 import React, { Component } from 'react';
-import { Grid, Form, Button, Segment, Icon, Message, Header } from 'semantic-ui-react';
+import {
+    Grid,
+    Form,
+    Button,
+    Segment,
+    Icon,
+    Message,
+    Header
+} from 'semantic-ui-react';
+
 import { Link } from 'react-router-dom';
 import firebase from '../../firebase';
 import '../App.css';
@@ -11,7 +20,9 @@ class Register extends Component {
             username: '',
             email: '',
             password: '',
-            passwordConfirmation: ''
+            passwordConfirmation: '',
+            errors: [],
+            loading: false
         }
     }
 
@@ -20,28 +31,33 @@ class Register extends Component {
     };
 
     handleOnSubmit = (e) => {
+        e.preventDefault();
         if (!this.isFormValid()) {
             return;
         }
-        e.preventDefault();
+        this.setState({ errors: [], loading: true })
         firebase
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(createdUser => {
-                console.log(createdUser);
+                this.setState({ loading: false })
             })
             .catch(err => {
-                console.error(err);
+                this.setState({ errors: this.state.errors.concat(err) });
             });
     };
 
     isFormValid = () => {
-        let error;
+        let error, errors = [];
 
         if (this.formEmpty()) {
-            error = 'Fill in all fields.';
-        } else if (!this.passwordValid()) {
-            error = 'Password is incorect.';
+            error = { message: 'Fill in all fields' };
+            this.setState({ errors: errors.concat(error) });
+            return false;
+        } else if (!this.isPasswordValid(this.state)) {
+            error = { message: 'Password is incorect' };
+            this.setState({ errors: errors.concat(error) });
+            return false;
         } else {
             return true;
         }
@@ -54,20 +70,45 @@ class Register extends Component {
         }
     }
 
-    passwordValid = () => {
+    isPasswordValid = ({ password, passwordConfirmation }) => {
+        if (password.length < 6 || passwordConfirmation < 6) {
+            return false;
+        } else if (password !== passwordConfirmation) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
+    displayErrors = (errors) => {
+        return (
+            errors.map((error, i) => {
+                return (
+                    <p key={i}>{error.message}</p>
+                );
+            })
+        );
     }
 
     render() {
-        const { username, email, password, passwordConfirmation } = this.state;
+        const {
+            username,
+            email,
+            password,
+            passwordConfirmation,
+            errors,
+            loading
+        } = this.state;
 
         return (
             <Grid textAlign='center' verticalAlign='middle' className='app'>
                 <Grid.Column style={{ maxWidth: 450 }}>
+
                     <Header as='h2' icon color='orange' textAlign='center'>
                         <Icon name='puzzle piece' color='orange' />
                         Register to DevChat
                     </Header>
+
                     <Form size='large' onSubmit={this.handleOnSubmit}>
                         <Segment stacked>
                             <Form.Input
@@ -111,12 +152,28 @@ class Register extends Component {
                                 value={passwordConfirmation}
                             />
 
-                            <Button color='orange' fluid size='large'>Confirm</Button>
+                            <Button
+                                className={loading ? 'loading' : ''}
+                                color='orange'
+                                fluid
+                                size='large'
+                            >
+                                Confirm
+                            </Button>
                         </Segment>
                     </Form>
+
+                    {errors.length > 0 && (
+                        <Message error>
+                            <h3>Error</h3>
+                            {this.displayErrors(errors)}
+                        </Message>
+                    )}
+
                     <Message>
                         Already user? <Link to='/login'>Login</Link>
-                    </Message >
+                    </Message>
+
                 </Grid.Column>
             </Grid>
         );
