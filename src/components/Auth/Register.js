@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import md5 from 'md5';
 import {
     Grid,
     Form,
@@ -22,13 +23,21 @@ class Register extends Component {
             password: '',
             passwordConfirmation: '',
             errors: [],
-            loading: false
+            loading: false,
+            usersRef: firebase.database().ref('users')
         }
     }
 
     handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
     };
+
+    saveUser = (createdUser) => {
+        return this.state.usersRef.child(createdUser.user.uid).set({
+            name: createdUser.user.displayName,
+            avatar: createdUser.user.photoURL
+        });
+    }
 
     handleOnSubmit = (e) => {
         e.preventDefault();
@@ -40,10 +49,26 @@ class Register extends Component {
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(createdUser => {
-                this.setState({ loading: false })
+                createdUser.user.updateProfile({
+                    displayName: this.state.username,
+                    photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
+                })
+                .then(() => {
+                    // console.log(createdUser);
+                    this.saveUser(createdUser).then(() => {
+                        console.log('user saved');
+                    })
+                })
+                .then(() => {
+                    this.setState({ loading: false })
+                })
+                .catch((err) => {
+                    console.error(err);
+                    this.setState({errors: this.state.errors.concat(err), loading: false})
+                })
             })
             .catch(err => {
-                this.setState({ errors: this.state.errors.concat(err) });
+                this.setState({ errors: this.state.errors.concat(err), loading: false });
             });
     };
 
@@ -90,6 +115,12 @@ class Register extends Component {
         );
     }
 
+    handleInputError = (errors, inputName) => {
+        return errors.some(error => error.message.toLowerCase().includes(inputName))
+            ? 'error'
+            : '';
+    }
+
     render() {
         const {
             username,
@@ -125,11 +156,12 @@ class Register extends Component {
                                 fluid
                                 name='email'
                                 icon='mail'
-                                iconPosition='left'
+                                iconPosition='left' 
                                 placeholder='Email'
                                 onChange={this.handleChange}
                                 type='email'
                                 value={email}
+                                className={this.handleInputError(errors, 'email')}
                             />
                             <Form.Input
                                 fluid
@@ -140,6 +172,7 @@ class Register extends Component {
                                 onChange={this.handleChange}
                                 type='password'
                                 value={password}
+                                className={this.handleInputError(errors, 'password')}
                             />
                             <Form.Input
                                 fluid
@@ -150,6 +183,7 @@ class Register extends Component {
                                 onChange={this.handleChange}
                                 type='password'
                                 value={passwordConfirmation}
+                                className={this.handleInputError(errors, 'passwordConfirmation')}
                             />
 
                             <Button
