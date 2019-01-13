@@ -1,15 +1,30 @@
+// react
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
 import registerServiceWorker from './registerServiceWorker';
+
+// router
 import { BrowserRouter as Router, Switch, Route, withRouter } from 'react-router-dom';
+
+// components
+import App from './components/App';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
+
+// style
 import 'semantic-ui-css/semantic.min.css';
+
+// firebase
 import firebase from './firebase';
+
+// redux
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+
+const store = createStore(() => {
+
+}, composeWithDevTools())
 
 class Root extends React.Component {
 
@@ -35,9 +50,11 @@ class Root extends React.Component {
 const RootWithRoute = withRouter(Root);
 
 ReactDOM.render(
-    <Router>
-        <RootWithRoute />
-    </Router>,
+    <Provider store={store}>
+        <Router>
+            <RootWithRoute />
+        </Router>
+    </Provider>,
     document.getElementById('root')
 );
 
