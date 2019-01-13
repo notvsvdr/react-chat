@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import md5 from 'md5';
+import { Link } from 'react-router-dom';
+import firebase from '../../firebase';
+import '../App.css';
 import {
     Grid,
     Form,
@@ -9,10 +12,6 @@ import {
     Message,
     Header
 } from 'semantic-ui-react';
-
-import { Link } from 'react-router-dom';
-import firebase from '../../firebase';
-import '../App.css';
 
 class Register extends Component {
     constructor(props) {
@@ -53,19 +52,16 @@ class Register extends Component {
                     displayName: this.state.username,
                     photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
                 })
-                .then(() => {
-                    // console.log(createdUser);
-                    this.saveUser(createdUser).then(() => {
-                        console.log('user saved');
+                    .then(() => {
+                        console.log(createdUser);
+                        this.saveUser(createdUser).then(() => {
+                            console.log('user saved');
+                        })
                     })
-                })
-                .then(() => {
-                    this.setState({ loading: false })
-                })
-                .catch((err) => {
-                    console.error(err);
-                    this.setState({errors: this.state.errors.concat(err), loading: false})
-                })
+                    .catch((err) => {
+                        console.error(err);
+                        this.setState({ errors: this.state.errors.concat(err), loading: false })
+                    })
             })
             .catch(err => {
                 this.setState({ errors: this.state.errors.concat(err), loading: false });
@@ -79,7 +75,7 @@ class Register extends Component {
             error = { message: 'Fill in all fields' };
             this.setState({ errors: errors.concat(error) });
             return false;
-        } else if (!this.isPasswordValid(this.state)) {
+        } else if (!this.isPasswordValid()) {
             error = { message: 'Password is incorect' };
             this.setState({ errors: errors.concat(error) });
             return false;
@@ -90,12 +86,13 @@ class Register extends Component {
 
     formEmpty = () => {
         const { username, password, passwordConfirmation, email } = this.state;
-        if (!username || !password || !passwordConfirmation || !email) {
+        if (!username.length || !password.length || !passwordConfirmation.length || !email.length) {
             return true;
         }
     }
 
-    isPasswordValid = ({ password, passwordConfirmation }) => {
+    isPasswordValid = () => {
+        const { password, passwordConfirmation } = this.state;
         if (password.length < 6 || passwordConfirmation < 6) {
             return false;
         } else if (password !== passwordConfirmation) {
@@ -137,7 +134,7 @@ class Register extends Component {
 
                     <Header as='h2' icon color='orange' textAlign='center'>
                         <Icon name='puzzle piece' color='orange' />
-                        Register to DevChat
+                        Register to Chat
                     </Header>
 
                     <Form size='large' onSubmit={this.handleOnSubmit}>
@@ -156,7 +153,7 @@ class Register extends Component {
                                 fluid
                                 name='email'
                                 icon='mail'
-                                iconPosition='left' 
+                                iconPosition='left'
                                 placeholder='Email'
                                 onChange={this.handleChange}
                                 type='email'
@@ -183,10 +180,11 @@ class Register extends Component {
                                 onChange={this.handleChange}
                                 type='password'
                                 value={passwordConfirmation}
-                                className={this.handleInputError(errors, 'passwordConfirmation')}
+                                className={this.handleInputError(errors, 'password')}
                             />
 
                             <Button
+                                disabled={loading}
                                 className={loading ? 'loading' : ''}
                                 color='orange'
                                 fluid
