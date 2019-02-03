@@ -17,7 +17,6 @@ const App = () => {
             <Grid.Column width={4}>
                 <MetaPanel />
             </Grid.Column>
-
         </Grid>
     );
 }
