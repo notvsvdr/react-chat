@@ -4,7 +4,7 @@ class MetaPanel extends Component {
     render() {
         return (
             <div>
-                SidePanel
+                MetaPanel
             </div>
         );
     }

@@ -21,6 +21,18 @@ class Channels extends React.Component {
         });
     }
 
+    handleSubmit = (event) => {
+        event.preventDefault();
+
+        if (!this.isFormValid(this.state)) {
+            return;
+        }
+    }
+
+    isFormValid = ({ channelName, channelDetails }) => {
+        return channelName && channelDetails;
+    }
+
     handleChange = (e) => {
         this.setState({
             [e.target.name]: e.target.value
@@ -46,7 +58,7 @@ class Channels extends React.Component {
                         Add a channel
                     </Modal.Header>
                     <Modal.Content>
-                        <Form>
+                        <Form onSubmit={this.handleSubmit}>
                             <Form.Field>
                                 <Input
                                     fluid
@@ -71,7 +83,7 @@ class Channels extends React.Component {
                         <Button color='green' inverted >
                             <Icon name='checkmark' /> Add
                         </Button>
-                        <Button color='red' inverted >
+                        <Button color='red' inverted onClick={this.closeModal}>
                             <Icon name='remove' /> Cancel
                         </Button>
                     </Modal.Actions>
