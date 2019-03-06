@@ -43,9 +43,9 @@ class Root extends React.Component {
 
     render() {
         return (
-            this.props.isLoading ?
-                <Spinner /> :
-                <Switch>
+            this.props.isLoading
+                ? <Spinner />
+                : <Switch>
                     <Route exact path='/' component={App} />
                     <Route path='/register' component={Register} />
                     <Route path='/login' component={Login} />
