@@ -11,6 +11,7 @@ import App from './components/App';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import Spinner from './components/spinner';
+import SpeechSynthesis from './components/SpeechSynthesis';
 
 // style
 import 'semantic-ui-css/semantic.min.css';
@@ -49,6 +50,7 @@ class Root extends React.Component {
                     <Route exact path='/' component={App} />
                     <Route path='/register' component={Register} />
                     <Route path='/login' component={Login} />
+                    <Route path='/justforfun' component={SpeechSynthesis} />
                 </Switch>
         );
     }

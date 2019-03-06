@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid } from 'semantic-ui-react';
+import { Grid, Button } from 'semantic-ui-react';
 import './App.css';
 import ColorPanel from './ColorPanel/ColorPanel';
 import SidePanel from './SidePanel/SidePanel';
@@ -22,7 +22,7 @@ const App = (props) => {
             <Grid.Column width={4}>
                 <MetaPanel />
             </Grid.Column>
-
+            <Button className="justforfun" onClick={() => { props.history.push('/justforfun') }}>?</Button>
         </Grid>
     );
 }
