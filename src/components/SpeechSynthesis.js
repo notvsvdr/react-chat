@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button, TextArea } from 'semantic-ui-react';
 class SpeechSynthesis extends React.Component {
 
     constructor(props) {
@@ -6,23 +7,21 @@ class SpeechSynthesis extends React.Component {
         this.state = {
             msg: ''
         }
+        this.speaker = new SpeechSynthesisUtterance();
     }
 
     toggle = (startOver = true) => {
-        speechSynthesis().cancel();
+        window.speechSynthesis.cancel();
         if (startOver) {
-            speechSynthesis().speak(this.state.msg);
+            this.speaker.text = this.state.msg;
+            window.speechSynthesis.speak(this.speaker);
         }
     }
 
     handleChange = (e) => {
         this.setState({
             msg: e.target.value
-        })
-    }
-
-    componentDidMount() {
-        // speech
+        });
     }
 
     render() {
@@ -30,10 +29,12 @@ class SpeechSynthesis extends React.Component {
             <div className="voiceinator">
                 <h1>The Speaker</h1>
 
-                <textarea name="text" value={this.state.msg} onChange={this.handleChange}> Hello!</textarea>
-
-                <button id="stop">Stop!</button>
-                <button id="speak" onClick={this.toggle}>Speak</button>
+                <TextArea
+                    name='text'
+                    onChange={this.handleChange}
+                    value={this.state.msg}
+                />
+                <Button onClick={this.toggle}>Start/Stop</Button>
             </div >
         );
     }

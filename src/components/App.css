@@ -14,3 +14,13 @@ i.icon.add:before {
     right: 5px;
     font-size: 8px;
 }
+
+.voiceinator {
+    padding: 50px;
+    text-align: center;
+}
+
+.voiceinator textarea {
+    width: 100%;
+    height: 200px;
+}
