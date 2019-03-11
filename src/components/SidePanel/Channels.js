@@ -1,12 +1,30 @@
 import React from 'react';
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
+import firebase from '../../firebase';
+import { setCurrentChannel } from '../../actions/index';
+import { connect } from 'react-redux';
 
 class Channels extends React.Component {
     state = {
+        user: this.props.currentUser,
         channels: [],
         channelName: '',
         channelDetails: '',
-        isModalOpen: false
+        isModalOpen: false,
+        channelsRef: firebase.database().ref('channels')
+    }
+
+    componentDidMount() {
+        this.addListeners();
+    }
+
+    addListeners = () => {
+        let loadedChannels = [];
+
+        this.state.channelsRef.on('child_added', snap => {
+            loadedChannels.push(snap.val());
+            this.setState({ channels: loadedChannels })
+        });
     }
 
     closeModal = () => {
@@ -27,6 +45,8 @@ class Channels extends React.Component {
         if (!this.isFormValid(this.state)) {
             return;
         }
+
+        this.addChannel();
     }
 
     isFormValid = ({ channelName, channelDetails }) => {
@@ -39,6 +59,54 @@ class Channels extends React.Component {
         });
     }
 
+    addChannel = () => {
+        const { channelsRef, channelName, channelDetails, user } = this.state;
+
+        const key = channelsRef.push().key;
+
+        const newChannel = {
+            id: key,
+            name: channelName,
+            details: channelDetails,
+            createdBy: {
+                name: user.displayName,
+                avatar: user.photoURL
+            }
+        };
+
+        channelsRef
+            .child(key)
+            .update(newChannel)
+            .then(() => {
+                this.setState({
+                    channelName: '',
+                    channelDetails: ''
+                })
+                this.closeModal();
+                console.log('channel added');
+            })
+            .catch(e => {
+                console.error(e);
+            });
+    }
+
+    displayChannels = (channels) => {
+        return channels.length > 0 && channels.map((channel) =>
+            <Menu.Item
+                key={channel.id}
+                onClick={() => { this.changeChannel(channel) }}
+                name={channel.name}
+                style={{ opacity: 0.7 }}
+            >
+                # {channel.name}
+            </Menu.Item>
+        )
+    }
+
+    changeChannel = (channel) => {
+
+    }
+
     render() {
         const { channels, isModalOpen } = this.state;
         return (
@@ -47,10 +115,10 @@ class Channels extends React.Component {
                     <Menu.Item>
                         <span>
                             <Icon name='exchange' /> Channels
-                    </span>{' '}
+                        </span>{' '}
                         ({channels.length}) <Icon name='add' onClick={this.openModal} />
                     </Menu.Item>
-
+                    {this.displayChannels(channels)}
                 </Menu.Menu>
 
                 <Modal basic open={isModalOpen} onClose={this.closeModal}>
@@ -80,7 +148,7 @@ class Channels extends React.Component {
                     </Modal.Content>
 
                     <Modal.Actions>
-                        <Button color='green' inverted >
+                        <Button color='green' inverted onClick={this.handleSubmit}>
                             <Icon name='checkmark' /> Add
                         </Button>
                         <Button color='red' inverted onClick={this.closeModal}>
@@ -93,4 +161,11 @@ class Channels extends React.Component {
     }
 }
 
-export default Channels;
+const mapStateToProps = (state) => {
+    return {
+        currentChannel: state.user.currentChannel
+    }
+}
+
+
+export default connect(mapStateToProps, { setCurrentChannel })(Channels);
