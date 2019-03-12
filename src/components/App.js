@@ -7,29 +7,37 @@ import Messages from './Messages/Messages';
 import MetaPanel from './MetaPanel/MetaPanel';
 import { connect } from 'react-redux';
 
-const App = (props) => {
+const App = ({ currentUser, currentChannel }) => {
     return (
         <Grid columns='equal' className='app' style={{ background: '#eee' }}>
 
             <ColorPanel />
 
-            <SidePanel currentUser={props.currentUser} />
+            <SidePanel
+                currentUser={currentUser}
+                key={currentUser && currentUser.uid}
+            />
 
-            <Grid.Column style={{ marginLeft: 220 }}>
-                <Messages />
+            <Grid.Column style={{ marginLeft: '320px' }}>
+                <Messages
+                    currentChannel={currentChannel}
+                    currentUser={currentUser}
+                    key={currentChannel && currentChannel.id}
+                />
             </Grid.Column>
 
             <Grid.Column width={4}>
                 <MetaPanel />
             </Grid.Column>
-            <Button className="justforfun" onClick={() => { props.history.push('/justforfun') }}>?</Button>
+            <Button className="justforfun" onClick={() => { this.props.history.push('/justforfun') }}>?</Button>
         </Grid>
     );
 }
 
 const mapStateToProps = (state) => {
     return {
-        currentUser: state.user.currentUser
+        currentUser: state.user.currentUser,
+        currentChannel: state.channel.currentChannel
     }
 }
 

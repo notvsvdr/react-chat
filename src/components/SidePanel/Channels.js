@@ -1,8 +1,8 @@
 import React from 'react';
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
 import firebase from '../../firebase';
-import { setCurrentChannel } from '../../actions/index';
 import { connect } from 'react-redux';
+import { setCurrentChannel } from '../../actions';
 
 class Channels extends React.Component {
     state = {
@@ -11,11 +11,21 @@ class Channels extends React.Component {
         channelName: '',
         channelDetails: '',
         isModalOpen: false,
-        channelsRef: firebase.database().ref('channels')
+        channelsRef: firebase.database().ref('channels'),
+        firstLoad: true,
+        activeChannel: ''
     }
 
     componentDidMount() {
         this.addListeners();
+    }
+
+    componentWillUnmount() {
+        this.removeListeners();
+    }
+
+    removeListeners = () => {
+        this.state.channelsRef.off();
     }
 
     addListeners = () => {
@@ -23,8 +33,19 @@ class Channels extends React.Component {
 
         this.state.channelsRef.on('child_added', snap => {
             loadedChannels.push(snap.val());
-            this.setState({ channels: loadedChannels })
+            this.setState({ channels: loadedChannels }, () => {
+                this.setFirstChannel()
+            });
         });
+    }
+
+    setFirstChannel = () => {
+        const firstChannel = this.state.channels[0];
+        if (this.state.firstLoad && this.state.channels.length > 0) {
+            this.props.setCurrentChannel(firstChannel);
+            this.setActiveChannel(firstChannel);
+        }
+        this.setState({ firstLoad: false });
     }
 
     closeModal = () => {
@@ -97,6 +118,7 @@ class Channels extends React.Component {
                 onClick={() => { this.changeChannel(channel) }}
                 name={channel.name}
                 style={{ opacity: 0.7 }}
+                active={channel.id === this.state.activeChannel}
             >
                 # {channel.name}
             </Menu.Item>
@@ -104,7 +126,14 @@ class Channels extends React.Component {
     }
 
     changeChannel = (channel) => {
+        this.props.setCurrentChannel(channel);
+        this.setActiveChannel(channel);
+    }
 
+    setActiveChannel = (channel) => {
+        this.setState({
+            activeChannel: channel.id
+        });
     }
 
     render() {
@@ -161,11 +190,4 @@ class Channels extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        currentChannel: state.user.currentChannel
-    }
-}
-
-
-export default connect(mapStateToProps, { setCurrentChannel })(Channels);
+export default connect(null, { setCurrentChannel })(Channels);
