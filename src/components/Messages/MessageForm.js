@@ -44,26 +44,28 @@ class MessageForm extends React.Component {
                 });
         } else {
             this.setState({
-                errors: this.state.errors.concat({ message: 'add a message' })
+                errors: this.state.errors.concat({ message: 'Add a message' })
             })
         }
     }
 
     createMessage = () => {
-        const message = {
-            content: this.state.message,
+        const { message, user } = this.state;
+        const newMessage = {
+            content: message,
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             user: {
-                id: this.state.user.uid,
-                name: this.state.user.displayName,
-                avatar: this.state.user.photoURL
+                id: user.uid,
+                name: user.displayName,
+                avatar: user.photoURL
             }
         }
-        return message;
+        return newMessage;
     }
 
     render() {
-        const { errors, message } = this.state;
+        const { errors, message, loading } = this.state;
+
         return (
             <Segment className='message__form'>
                 <Input
@@ -86,6 +88,7 @@ class MessageForm extends React.Component {
                         labelPosition='left'
                         icon='edit'
                         onClick={this.sendMessage}
+                        disabled={loading}
                     />
                     <Button
                         color='teal'
