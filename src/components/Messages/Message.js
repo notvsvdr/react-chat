@@ -13,14 +13,13 @@ const timeFromNow = (timestamp) => {
 const Message = ({ message, currentUser }) =>
     <Comment>
         <Comment.Avatar src={message.user.avatar} />
-        <Comment.Content
-            className={isOwnMessage(message, currentUser)}
-        >
-            <Comment.Author as='a'>{message.user.displayName}</Comment.Author>
+        <Comment.Content className={isOwnMessage(message, currentUser)}>
+            <Comment.Author as='a'>{message.user.name}</Comment.Author>
             <Comment.Metadata>{timeFromNow(message.timestamp)}</Comment.Metadata>
             <Comment.Text>{message.content}</Comment.Text>
         </Comment.Content>
-    </Comment>
+    </Comment >
+
 
 
 export default Message;

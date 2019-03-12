@@ -27,7 +27,7 @@ class MessageForm extends React.Component {
             });
             messagesRef
                 .child(channel.id)
-                .push('messages')
+                .push()
                 .set(this.createMessage())
                 .then(() => {
                     this.setState({
@@ -40,27 +40,26 @@ class MessageForm extends React.Component {
                     this.setState({
                         loading: false,
                         errors: this.state.errors.concat(e)
-                    })
+                    });
                 });
         } else {
             this.setState({
                 errors: this.state.errors.concat({ message: 'Add a message' })
-            })
+            });
         }
     }
 
     createMessage = () => {
-        const { message, user } = this.state;
-        const newMessage = {
-            content: message,
+        const message = {
+            content: this.state.message,
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             user: {
-                id: user.uid,
-                name: user.displayName,
-                avatar: user.photoURL
+                id: this.state.user.uid,
+                name: this.state.user.displayName,
+                avatar: this.state.user.photoURL
             }
         }
-        return newMessage;
+        return message;
     }
 
     render() {
@@ -69,6 +68,7 @@ class MessageForm extends React.Component {
         return (
             <Segment className='message__form'>
                 <Input
+                    autoComplete='off'
                     fluid
                     name='message'
                     style={{ marginBottom: '0.7em' }}
