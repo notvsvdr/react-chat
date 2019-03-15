@@ -20,7 +20,7 @@ class UserPanel extends React.Component {
             },
             {
                 key: 'avatar',
-                text: <span>Change avatar</span>,
+                text: <span onClick={this.handleChangeAvatar}>Change avatar</span>,
                 disabled: false
             },
             {
@@ -35,6 +35,10 @@ class UserPanel extends React.Component {
         firebase.auth().signOut().then(() => {
             console.log('signed out');
         })
+    }
+
+    handleChangeAvatar = () => {
+        console.log('TODO');
     }
 
     render() {

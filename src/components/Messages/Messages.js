@@ -7,12 +7,16 @@ import MessageForm from './MessageForm';
 import Message from './Message';
 
 class Messages extends Component {
-    state = {
-        messagesRef: firebase.database().ref('messages'),
-        messages: [],
-        messagesLoading: true,
-        currentChannel: this.props.currentChannel,
-        currentUser: this.props.currentUser
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            messagesRef: firebase.database().ref('messages'),
+            messages: [],
+            messagesLoading: true,
+            currentChannel: this.props.currentChannel,
+            currentUser: this.props.currentUser
+        }
     }
 
     componentDidMount() {
@@ -36,18 +40,21 @@ class Messages extends Component {
                 messages: loadedMessages,
                 messagesLoading: false
             });
+            const domMessages = document.querySelector('.messages');
+            domMessages.scrollTop = domMessages.scrollHeight;
         });
     }
 
-    displayMessages = (messages) =>
-        messages.length > 0 &&
-        messages.map((message) => (
-            <Message
-                key={message.timestamp}
-                message={message}
-                currentUser={this.state.currentUser}
-            />
-        ));
+    displayMessages = (messages) => {
+        return messages.length > 0 &&
+            messages.map((message) => (
+                <Message
+                    key={message.timestamp}
+                    message={message}
+                    currentUser={this.state.currentUser}
+                />
+            ));
+    }
 
 
     render() {
